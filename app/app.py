@@ -69,11 +69,12 @@ def note_input() -> rx.Component:
 
 def note_card(note: dict) -> rx.Component:
     """Individual note card."""
+    note_id = note["id"]
     return rx.box(
         rx.hstack(
             rx.checkbox(
                 checked=note["completed"],
-                on_change=lambda note_id=note["id"]: AppState.toggle_note(note_id),
+                on_change=AppState.toggle_note(note_id),
                 size="2",
             ),
             rx.vstack(
@@ -98,7 +99,7 @@ def note_card(note: dict) -> rx.Component:
             ),
             rx.icon_button(
                 rx.icon("trash-2", size=16),
-                on_click=lambda note_id=note["id"]: AppState.delete_note(note_id),
+                on_click=AppState.delete_note(note_id),
                 variant="ghost",
                 color_scheme="red",
                 size="1",
@@ -218,19 +219,21 @@ def index() -> rx.Component:
         on_mount=AppState.on_load,
     )
 
+# Prepare head components
+head_components = []
+if config.JAZZ_SYNC_SERVER:
+    head_components.append(
+        rx.script(src="https://unpkg.com/jazz-tools@latest/dist/index.js")
+    )
+
 # Create app
 app = rx.App(
     theme=rx.theme(
         appearance="light",
         accent_color="blue",
     ),
+    head_components=head_components,
 )
-
-# Add Jazz script if sync is enabled
-if config.JAZZ_SYNC_SERVER:
-    app.head_components.append(
-        rx.script(src="https://unpkg.com/jazz-tools@latest/dist/index.js")
-    )
 
 # Add page
 app.add_page(
@@ -239,3 +242,4 @@ app.add_page(
     title="Jazz Notes - No Backend Required!",
     description="A simple notes app built with Jazz CRDTs and Reflex",
 )
+

@@ -20,17 +20,27 @@ class Config:
     APP_ENV: str = os.getenv("APP_ENV", "development")
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 
-    def setup_logging(self):
+    def setup_logging(self) -> None:
         """Configure logging."""
         logging.basicConfig(
             level=getattr(logging, self.LOG_LEVEL),
-            format='[JAZZ-ONLY] %(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            format='[JAZZ-ONLY] %(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            force=True
         )
         logger = logging.getLogger(__name__)
         logger.info("🎺 Jazz-Only Mode")
         logger.info(f" Sync Server: {self.JAZZ_SYNC_SERVER or 'Local-only'}")
         logger.info(f" P2P Enabled: {'✅' if self.JAZZ_ENABLE_P2P else '❌'}")
 
+
+def get_config() -> Config:
+    """Get or create global config instance."""
+    if not hasattr(get_config, '_instance'):
+        get_config._instance = Config()
+        get_config._instance.setup_logging()
+    return get_config._instance
+
+
 # Create global config
-config = Config()
-config.setup_logging()
+config = get_config()
+
