@@ -146,4 +146,8 @@ if [ "${{ needs.lint.result }}" != "success" ]; then
 echo "⚠️ Linting had issues (non-blocking)"
 fi
 
+if [ "${{ needs.typescript-check.result }}" != "success" ]; then
+echo "⚠️ TypeScript check had issues (non-blocking)"
+fi
+
 echo "✅ All required checks passed"
