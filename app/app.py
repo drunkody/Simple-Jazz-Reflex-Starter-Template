@@ -1,8 +1,10 @@
 """Main application with Jazz sync."""
+
 import reflex as rx
 
 from app.state import AppState
 from config import config
+
 
 def header() -> rx.Component:
     """App header with sync status."""
@@ -36,6 +38,7 @@ def header() -> rx.Component:
         class_name="bg-white border-b p-4 shadow-sm",
     )
 
+
 def note_input() -> rx.Component:
     """Note input form."""
     return rx.box(
@@ -67,6 +70,7 @@ def note_input() -> rx.Component:
         ),
         class_name="bg-white p-4 rounded-lg shadow-sm border",
     )
+
 
 def note_card(note: rx.Var[dict]) -> rx.Component:
     """Individual note card."""
@@ -112,6 +116,7 @@ def note_card(note: rx.Var[dict]) -> rx.Component:
         class_name="bg-white p-4 rounded-lg shadow-sm border hover:shadow-md transition-shadow",
     )
 
+
 def notes_list() -> rx.Component:
     """List of notes."""
     return rx.cond(
@@ -138,6 +143,7 @@ def notes_list() -> rx.Component:
             class_name="bg-gray-50 p-12 rounded-lg border-2 border-dashed border-gray-200 text-center",
         ),
     )
+
 
 def stats() -> rx.Component:
     """Stats section."""
@@ -179,6 +185,7 @@ def stats() -> rx.Component:
         width="100%",
     )
 
+
 def info_box() -> rx.Component:
     """Info box about Jazz."""
     return rx.box(
@@ -201,6 +208,7 @@ def info_box() -> rx.Component:
         ),
         class_name="bg-blue-50 border border-blue-200 p-4 rounded-lg",
     )
+
 
 def index() -> rx.Component:
     """Main page."""
