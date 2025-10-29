@@ -1,25 +1,22 @@
 """Application state with Jazz sync."""
+from datetime import datetime
+from typing import List, Dict, Any
+
 import reflex as rx
-from typing import List, TypedDict
 import logging
-import datetime
 
 logger = logging.getLogger(__name__)
 
 
-class Note(TypedDict):
-    """Note structure."""
-    id: int
-    title: str
-    content: str
-    completed: bool
-    created_at: str
+# Type alias for note dictionaries
+NoteDict = Dict[str, Any]
+
 
 class AppState(rx.State):
     """Main application state."""
 
     # UI State
-    notes: List[Note] = []
+    notes: List[NoteDict] = []
     new_note_title: str = ""
     new_note_content: str = ""
     jazz_initialized: bool = False
@@ -36,21 +33,23 @@ class AppState(rx.State):
         return sum(1 for note in self.notes if note.get("completed", False))
 
     @rx.var
+    def active_count(self) -> int:
+        """Get active notes count."""
+        return self.notes_count - self.completed_count
+
+    @rx.var
     def can_add_note(self) -> bool:
         """Check if can add note."""
         return len(self.new_note_title.strip()) > 0
 
-    @rx.event
-    def set_new_note_title(self, value: str) -> None:
+    def set_new_note_title(self, value: str):
         """Set new note title."""
         self.new_note_title = value
 
-    @rx.event
-    def set_new_note_content(self, value: str) -> None:
+    def set_new_note_content(self, value: str):
         """Set new note content."""
         self.new_note_content = value
 
-    @rx.event(background=True)
     async def initialize_jazz(self) -> None:
         """Initialize Jazz system."""
         try:
@@ -68,7 +67,6 @@ class AppState(rx.State):
             async with self:
                 self.sync_status = "error"
 
-    @rx.event
     def add_note(self) -> None:
         """Add a new note."""
         if not self.can_add_note:
@@ -76,12 +74,12 @@ class AppState(rx.State):
 
         try:
             # Create note object
-            note: Note = {
+            note: NoteDict = {
                 "id": len(self.notes) + 1,
                 "title": self.new_note_title.strip(),
                 "content": self.new_note_content.strip(),
                 "completed": False,
-                "created_at": datetime.datetime.now().isoformat(),
+                "created_at": datetime.now().isoformat(),
             }
 
             # Create new list to trigger state update (in real app, this would save to Jazz)
@@ -94,8 +92,7 @@ class AppState(rx.State):
         except Exception as e:
             logger.error(f"Failed to add note: {e}")
 
-    @rx.event
-    def toggle_note(self, note_id: int) -> None:
+    def toggle_note(self, note_id: int):
         """Toggle note completion status."""
         try:
             self.notes = [
@@ -106,8 +103,7 @@ class AppState(rx.State):
         except Exception as e:
             logger.error(f"Failed to toggle note {note_id}: {e}")
 
-    @rx.event
-    def delete_note(self, note_id: int) -> None:
+    def delete_note(self, note_id: int):
         """Delete a note."""
         try:
             self.notes = [n for n in self.notes if n["id"] != note_id]
@@ -118,4 +114,3 @@ class AppState(rx.State):
     def on_load(self) -> None:
         """Handle page load."""
         return AppState.initialize_jazz
-

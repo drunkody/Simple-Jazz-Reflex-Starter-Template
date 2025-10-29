@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+_config_instance = None
+
+
 class Config:
     """Application configuration."""
 
@@ -24,8 +28,7 @@ class Config:
         """Configure logging."""
         logging.basicConfig(
             level=getattr(logging, self.LOG_LEVEL),
-            format='[JAZZ-ONLY] %(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            force=True
+            format='[JAZZ-ONLY] %(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
         logger = logging.getLogger(__name__)
         logger.info("🎺 Jazz-Only Mode")
@@ -35,12 +38,12 @@ class Config:
 
 def get_config() -> Config:
     """Get or create global config instance."""
-    if not hasattr(get_config, '_instance'):
-        get_config._instance = Config()
-        get_config._instance.setup_logging()
-    return get_config._instance
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+        _config_instance.setup_logging()
+    return _config_instance
 
 
 # Create global config
 config = get_config()
-

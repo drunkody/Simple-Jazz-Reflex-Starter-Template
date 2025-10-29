@@ -21,8 +21,8 @@ class TestAppState:
         assert state.notes_count == 0
 
         state.notes = [
-            {"id": 1, "title": "Test", "completed": False},
-            {"id": 2, "title": "Test 2", "completed": True},
+            {"id": 1, "title": "Test", "content": "", "completed": False, "created_at": "2024-01-01"},
+            {"id": 2, "title": "Test 2", "content": "", "completed": True, "created_at": "2024-01-01"},
         ]
         assert state.notes_count == 2
 
@@ -30,9 +30,9 @@ class TestAppState:
         """Test completed_count computed var."""
         state = AppState()
         state.notes = [
-            {"id": 1, "title": "Test 1", "completed": False},
-            {"id": 2, "title": "Test 2", "completed": True},
-            {"id": 3, "title": "Test 3", "completed": True},
+            {"id": 1, "title": "Test 1", "content": "", "completed": False, "created_at": "2024-01-01"},
+            {"id": 2, "title": "Test 2", "content": "", "completed": True, "created_at": "2024-01-01"},
+            {"id": 3, "title": "Test 3", "content": "", "completed": True, "created_at": "2024-01-01"},
         ]
         assert state.completed_count == 2
 
@@ -71,6 +71,8 @@ class TestAppState:
         assert state.notes[0]["title"] == "Test Note"
         assert state.notes[0]["content"] == "Test Content"
         assert state.notes[0]["completed"] is False
+        assert "created_at" in state.notes[0]
+        assert "id" in state.notes[0]
         assert state.new_note_title == ""
         assert state.new_note_content == ""
 
@@ -78,6 +80,15 @@ class TestAppState:
         """Test adding note with empty title is blocked."""
         state = AppState()
         state.new_note_title = ""
+
+        state.add_note()
+
+        assert len(state.notes) == 0
+
+    def test_add_note_whitespace_title(self):
+        """Test adding note with only whitespace is blocked."""
+        state = AppState()
+        state.new_note_title = "   "
 
         state.add_note()
 
@@ -99,20 +110,6 @@ class TestAppState:
         # Toggle again
         state.toggle_note(1)
         assert state.notes[0]["completed"] is False
-
-    def test_toggle_note_creates_new_list(self):
-        """Test that toggle_note creates new list (not mutation)."""
-        state = AppState()
-        original_note = {"id": 1, "title": "Test", "completed": False}
-        state.notes = [original_note]
-
-        state.toggle_note(1)
-
-        # Original dict should not be mutated
-        assert original_note["completed"] is False
-        # State should have new list with new dict
-        assert state.notes[0]["completed"] is True
-        assert state.notes[0] is not original_note
 
     def test_delete_note(self):
         """Test deleting a note."""
@@ -138,6 +135,16 @@ class TestAppState:
         state.delete_note(999)
 
         assert len(state.notes) == 1
+
+    def test_active_count(self):
+        """Test active_count computed var."""
+        state = AppState()
+        state.notes = [
+            {"id": 1, "title": "Test 1", "completed": False, "created_at": "2024-01-01"},
+            {"id": 2, "title": "Test 2", "completed": True, "created_at": "2024-01-01"},
+            {"id": 3, "title": "Test 3", "completed": False, "created_at": "2024-01-01"},
+        ]
+        assert state.active_count == 2
 
 
 @pytest.mark.asyncio

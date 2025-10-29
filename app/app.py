@@ -50,7 +50,7 @@ def note_input() -> rx.Component:
                 placeholder="Note content (optional)...",
                 value=AppState.new_note_content,
                 on_change=AppState.set_new_note_content,
-                rows="3",
+                size="3",
                 class_name="w-full",
             ),
             rx.button(
@@ -67,24 +67,25 @@ def note_input() -> rx.Component:
         class_name="bg-white p-4 rounded-lg shadow-sm border",
     )
 
-def note_card(note: dict) -> rx.Component:
+def note_card(note: rx.Var[dict]) -> rx.Component:
     """Individual note card."""
-    note_id = note["id"]
     return rx.box(
         rx.hstack(
             rx.checkbox(
                 checked=note["completed"],
-                on_change=AppState.toggle_note(note_id),
+                on_change=lambda _: AppState.toggle_note(note["id"]),
                 size="2",
             ),
             rx.vstack(
                 rx.text(
                     note["title"],
-                    class_name=rx.cond(
+                    text_decoration=rx.cond(
                         note["completed"],
-                        "line-through text-gray-400 font-medium",
-                        "font-medium",
+                        "line-through",
+                        "none",
                     ),
+                    color=rx.cond(note["completed"], "gray", "black"),
+                    font_weight="medium",
                 ),
                 rx.cond(
                     note["content"] != "",
@@ -99,7 +100,7 @@ def note_card(note: dict) -> rx.Component:
             ),
             rx.icon_button(
                 rx.icon("trash-2", size=16),
-                on_click=AppState.delete_note(note_id),
+                on_click=lambda _: AppState.delete_note(note["id"]),
                 variant="ghost",
                 color_scheme="red",
                 size="1",
@@ -166,7 +167,7 @@ def stats() -> rx.Component:
             rx.vstack(
                 rx.text("Active", class_name="text-sm text-gray-600"),
                 rx.text(
-                    AppState.notes_count - AppState.completed_count,
+                    AppState.active_count,
                     class_name="text-2xl font-bold text-orange-600",
                 ),
                 spacing="1",
@@ -242,4 +243,3 @@ app.add_page(
     title="Jazz Notes - No Backend Required!",
     description="A simple notes app built with Jazz CRDTs and Reflex",
 )
-
