@@ -1,5 +1,6 @@
 """Main application with Jazz sync."""
 import reflex as rx
+
 from app.state import AppState
 from config import config
 

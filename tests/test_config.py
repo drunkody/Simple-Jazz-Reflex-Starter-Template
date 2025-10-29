@@ -1,6 +1,6 @@
 """Tests for configuration."""
 import os
-import pytest
+
 from config import Config
 
 

@@ -1,22 +1,22 @@
 """Application state with Jazz sync."""
+import logging
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Any
 
 import reflex as rx
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 # Type alias for note dictionaries
-NoteDict = Dict[str, Any]
+NoteDict = dict[str, Any]
 
 
 class AppState(rx.State):
     """Main application state."""
 
     # UI State
-    notes: List[NoteDict] = []
+    notes: list[NoteDict] = []
     new_note_title: str = ""
     new_note_content: str = ""
     jazz_initialized: bool = False

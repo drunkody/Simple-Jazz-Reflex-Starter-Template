@@ -1,5 +1,6 @@
 """Tests for application state."""
 import pytest
+
 from app.state import AppState
 
 
