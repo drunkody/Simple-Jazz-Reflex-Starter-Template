@@ -1,13 +1,14 @@
 """Application state with Jazz sync."""
+from datetime import datetime
+from typing import List
+
 import reflex as rx
-from typing import List, TypedDict
 import logging
-import datetime
 
 logger = logging.getLogger(__name__)
 
 
-class Note(TypedDict):
+class Note(rx.Base):
     """Note structure."""
     id: int
     title: str
@@ -81,7 +82,7 @@ class AppState(rx.State):
                 "title": self.new_note_title.strip(),
                 "content": self.new_note_content.strip(),
                 "completed": False,
-                "created_at": datetime.datetime.now().isoformat(),
+                "created_at": datetime.now().isoformat(),
             }
 
             # Create new list to trigger state update (in real app, this would save to Jazz)

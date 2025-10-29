@@ -21,8 +21,8 @@ class TestAppState:
         assert state.notes_count == 0
 
         state.notes = [
-            {"id": 1, "title": "Test", "completed": False},
-            {"id": 2, "title": "Test 2", "completed": True},
+            {"id": 1, "title": "Test", "content": "", "completed": False, "created_at": "2024-01-01"},
+            {"id": 2, "title": "Test 2", "content": "", "completed": True, "created_at": "2024-01-01"},
         ]
         assert state.notes_count == 2
 
@@ -30,9 +30,9 @@ class TestAppState:
         """Test completed_count computed var."""
         state = AppState()
         state.notes = [
-            {"id": 1, "title": "Test 1", "completed": False},
-            {"id": 2, "title": "Test 2", "completed": True},
-            {"id": 3, "title": "Test 3", "completed": True},
+            {"id": 1, "title": "Test 1", "content": "", "completed": False, "created_at": "2024-01-01"},
+            {"id": 2, "title": "Test 2", "content": "", "completed": True, "created_at": "2024-01-01"},
+            {"id": 3, "title": "Test 3", "content": "", "completed": True, "created_at": "2024-01-01"},
         ]
         assert state.completed_count == 2
 
