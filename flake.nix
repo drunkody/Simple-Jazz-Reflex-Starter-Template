@@ -1,28 +1,17 @@
-# flake.nix - Nix Flake configuration for Jazz + Reflex Starter
-# This creates a reproducible development environment with Python and Node.js
-# for building offline-first apps with CRDT sync
+# flake.nix - Use Reflex's REFLEX_USE_SYSTEM_BUN
 {
   description = "Jazz + Reflex Starter - Offline-first app with CRDT sync and Python UI";
 
-  # Inputs are external dependencies for our flake
   inputs = {
-    # nixpkgs is the main package repository for Nix
-    # Using "nixos-unstable" gives us the latest packages
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-    # flake-utils helps us write flakes that work on multiple systems
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  # Outputs define what our flake produces
   outputs = { self, nixpkgs, flake-utils }:
-    # Create outputs for each system (x86_64-linux, aarch64-darwin, etc.)
     flake-utils.lib.eachDefaultSystem (system:
       let
-        # Import nixpkgs for our specific system
         pkgs = nixpkgs.legacyPackages.${system};
 
-        # Define Python packages we want available in the environment
         pythonPackages = ps: with ps; [
           pip
           setuptools
@@ -36,19 +25,26 @@
           ruff
         ];
 
-        # Create a Python environment with our packages
         pythonEnv = pkgs.python311.withPackages pythonPackages;
 
       in
       {
-        # devShells.default is the development environment
         devShells.default = pkgs.mkShell {
-          # Packages to include in the shell environment
           buildInputs = with pkgs; [
+            # Python environment
             pythonEnv
+            
+            # JavaScript runtimes
             nodejs_24
+            bun              # Reflex's preferred JS runtime
             nodePackages.npm
             nodePackages.typescript
+            
+            # Reflex dependencies
+            unzip          # Required by Reflex to install Bun
+            caddy          # Optional: for production deployment
+            
+            # Development tools
             git
             gnumake
             ripgrep
@@ -61,13 +57,26 @@
             # Set environment variables
             export PROJECT_NAME="jazz-reflex-starter"
             export NODE_ENV="development"
-            export PYTHONPATH="."
-            export PIP_USER="1"
+            export PYTHONPATH="$PWD:$PYTHONPATH"
+            
+            # Tell Reflex to use system Bun (NixOS compatibility)
+            export REFLEX_USE_SYSTEM_BUN=true
+            export BUN_PATH="${pkgs.bun}/bin/bun"
+            
+            # Create virtual environment if it doesn't exist
+            if [ ! -d .venv ]; then
+              echo "📦 Creating Python virtual environment..."
+              python -m venv .venv
+            fi
+            
+            # Activate virtual environment
+            source .venv/bin/activate
 
             echo "🎺 Jazz + Reflex Development Environment"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "📦 Python $(python --version | cut -d' ' -f2)"
             echo "📦 Node.js $(node --version)"
+            echo "📦 Bun $(bun --version)"
             echo "📦 npm v$(npm --version)"
             echo ""
             echo "🚀 Quick Start:"
@@ -83,6 +92,14 @@
               echo "⚠️  No .env file found. Creating from .env.example..."
               cp .env.example .env
               echo "✅ Created .env file"
+              echo ""
+            fi
+            
+            # Auto-install if requirements.txt exists but packages aren't installed
+            if [ -f requirements.txt ] && ! pip show reflex > /dev/null 2>&1; then
+              echo "📥 Installing Python dependencies..."
+              pip install -q -r requirements.txt
+              echo "✅ Dependencies installed!"
               echo ""
             fi
           '';

@@ -1,7 +1,8 @@
-.PHONY: install run test lint clean help ci
+.PHONY: install run test lint clean help ci setup
 
 help:
 	@echo "Available commands:"
+	@echo "  make setup      - First-time setup (creates venv)"
 	@echo "  make install    - Install dependencies"
 	@echo "  make run        - Run the application"
 	@echo "  make test       - Run tests"
@@ -10,10 +11,21 @@ help:
 	@echo "  make ci         - Run all CI checks locally"
 	@echo "  make clean      - Clean generated files"
 
+setup:
+	@echo "🔧 Setting up development environment..."
+	python -m venv .venv
+	. .venv/bin/activate && pip install --upgrade pip
+	@echo "✅ Virtual environment created!"
+	@echo "Run: source .venv/bin/activate (or enter nix shell)"
+
 install:
+	@echo "📥 Installing dependencies..."
+	pip install --upgrade pip
 	pip install -r requirements.txt
+	@echo "✅ All dependencies installed!"
 
 run:
+	@command -v reflex >/dev/null 2>&1 || { echo "❌ reflex not found. Run 'make install' first."; exit 1; }
 	reflex run
 
 test:
@@ -43,5 +55,9 @@ clean:
 	rm -rf coverage.xml
 	rm -rf bandit-report.json
 	rm -rf .ruff_cache/
-	find . -type d -name __pycache__ -exec rm -rf {} +
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
+
+clean-all: clean
+	rm -rf .venv/
+	@echo "✅ Cleaned everything including virtual environment"
