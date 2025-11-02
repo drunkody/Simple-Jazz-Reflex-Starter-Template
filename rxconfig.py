@@ -26,4 +26,6 @@ config = rx.Config(
     
     # Database (if needed in future)
     # db_url="sqlite:///reflex.db",
+
+    assets_url="/",
 )

@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Reflex Cloud
+    name: Deploy Static Site
     runs-on: ubuntu-latest
 
     steps:
@@ -19,17 +19,20 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Reflex
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install reflex>=0.4.0
+          pip install -r requirements.txt
 
-      - name: Deploy to Reflex Cloud
+      - name: Export static site
         run: |
-          reflex deploy
-        env:
-          REFLEX_API_KEY: ${{ secrets.REFLEX_API_KEY }}
-          JAZZ_SYNC_SERVER: wss://cloud.jazz.tools
-          JAZZ_ENABLE_P2P: true
-          APP_ENV: production
+          reflex export --frontend-only
 
+      - name: Deploy static files
+        # This is a placeholder for your deployment step.
+        # For example, to deploy to GitHub Pages, you would use an action like:
+        # uses: peaceiris/actions-gh-pages@v3
+        # with:
+        #   github_token: ${{ secrets.GITHUB_TOKEN }}
+        #   publish_dir: .web/build/client
+        run: echo "Deploying static files from .web/build/client"
